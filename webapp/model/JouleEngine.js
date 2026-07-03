@@ -121,6 +121,17 @@ sap.ui.define([
 		getForm: function (id) { return byId(_catalog.forms, id); },
 		allForms: function () { return _catalog.forms || []; },
 
+		/**
+		 * Hot-swap the forms array in the catalog.
+		 * Called after ODataService.fetchForms() returns OData-sourced forms.
+		 * Preserves context (plant, department, user) and non-form catalog data.
+		 */
+		refreshCatalog: function (aForms) {
+			if (aForms && aForms.length) {
+				_catalog.forms = aForms;
+			}
+		},
+
 		welcomeText: function () {
 			return "Hi " + user().name + " 👋 I'm the <strong>AWL ELog AI Agent</strong> for <strong>" + plant().name +
 				"</strong>.<br>You're in <strong>" + dept().name + "</strong>. Tell me a log to open — I'll render the form for you to fill.";

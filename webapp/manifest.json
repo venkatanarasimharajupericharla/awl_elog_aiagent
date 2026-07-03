@@ -8,6 +8,15 @@
 		"description": "A responsive SAPUI5 AWL ELog AI Agent that renders UI dynamically from prompts.",
 		"applicationVersion": {
 			"version": "1.0.0"
+		},
+		"dataSources": {
+			"capmService": {
+				"uri": "/sales-order/",
+				"type": "OData",
+				"settings": {
+					"odataVersion": "4.0"
+				}
+			}
 		}
 	},
 	"sap.ui": {

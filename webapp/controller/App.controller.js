@@ -10,9 +10,10 @@ sap.ui.define([
 	"sap/ui/core/HTML",
 	"sap/m/MessageToast",
 	"joule/model/JouleEngine",
-	"joule/model/FormRenderer"
+	"joule/model/FormRenderer",
+	"joule/model/ODataService"
 ], function (Controller, JSONModel, VBox, HBox, Text, FormattedText,
-	Button, Icon, HTML, MessageToast, JouleEngine, FormRenderer) {
+	Button, Icon, HTML, MessageToast, JouleEngine, FormRenderer, ODataService) {
 	"use strict";
 
 	return Controller.extend("joule.controller.App", {
@@ -30,7 +31,60 @@ sap.ui.define([
 					this._welcome();
 					this._focusInput();
 					this._initRouting();
+
+					// ── Load forms from CAPM OData (primary source) ──
+					this._loadODataForms();
 				}.bind(this));
+		},
+
+		/**
+		 * Fetch forms from CAPM OData V4 service.
+		 * On success: replaces catalog.forms, refreshes JouleEngine + meta model.
+		 * On failure: keeps static catalog.json forms as fallback.
+		 */
+		_loadODataForms: function () {
+			var that = this;
+			ODataService.fetchForms().then(function (aForms) {
+				if (aForms && aForms.length > 0) {
+					// Replace catalog forms with OData-sourced forms
+					that._catalog.forms = aForms;
+					JouleEngine.refreshCatalog(aForms);
+					that._refreshFormsMeta();
+					console.log("[App] Switched to CAPM OData forms (" + aForms.length + " forms loaded)");
+				} else if (aForms && aForms.length === 0) {
+					// Prevent duplicate seeding during rapid live-reloads
+					var seedLock = localStorage.getItem("elog_seed_lock");
+					if (seedLock && (Date.now() - parseInt(seedLock, 10)) < 15000) {
+						console.log("[App] DB seed already in progress — skipping to prevent duplicates.");
+						return;
+					}
+					localStorage.setItem("elog_seed_lock", Date.now().toString());
+
+					// CAPM DB is empty (no forms yet). Let's seed it from the static catalog.json
+					console.log("[App] CAPM OData DB is empty — seeding from catalog.json...");
+					ODataService.seedDatabase(that._catalog.forms).then(function () {
+						// Re-fetch forms so they get their new OData IDs
+						ODataService.fetchForms().then(function (aSeededForms) {
+							if (aSeededForms && aSeededForms.length) {
+								that._catalog.forms = aSeededForms;
+								JouleEngine.refreshCatalog(aSeededForms);
+								that._refreshFormsMeta();
+								console.log("[App] Switched to seeded CAPM OData forms (" + aSeededForms.length + " forms loaded)");
+								// Reload the admin fields if we're currently viewing the admin detail page
+								var sAdminHash = (window.location.hash || "");
+								if (sAdminHash.indexOf("/admin") >= 0) {
+									var currentFormId = that.getView().getModel("admin").getProperty("/formId");
+									if (currentFormId) {
+										that._loadAdminFields(currentFormId);
+									}
+								}
+							}
+						});
+					});
+				} else {
+					console.log("[App] CAPM OData not available — using static catalog.json fallback");
+				}
+			});
 		},
 
 		_deptName: function (id) {
@@ -46,10 +100,13 @@ sap.ui.define([
 		_formMeta: function (f) {
 			var nHeader = (f.headerFields || []).length;
 			var nCols = (f.grid && f.grid.columns) ? f.grid.columns.length : 0;
+			var nFooter = (f.footerFields || []).length;
 			return {
 				id: f.id, name: f.name, documentNo: f.documentNo, label: f.name + " · " + f.documentNo,
-				plantName: this._plantName(f.plantId), deptName: this._deptName(f.departmentId),
-				fieldCount: nHeader + nCols
+				plantName: f._plantName || this._plantName(f.plantId),
+				deptName: f._departmentName || this._deptName(f.departmentId),
+				fieldCount: nHeader + nCols + nFooter,
+				_odata_ID: f._odata_ID || null
 			};
 		},
 
@@ -223,23 +280,44 @@ sap.ui.define([
 			if (!form) { return; }
 			this._loadAdminFields(sFormId);
 			this.byId("adminDetailTitle").setText(form.name);
-			this.byId("adminDetailInfo").setText(form.documentNo + "  ·  " + this._plantName(form.plantId) + "  ·  " + this._deptName(form.departmentId));
+			this.byId("adminDetailInfo").setText(
+				form.documentNo + "  ·  " +
+				(form._plantName || this._plantName(form.plantId)) + "  ·  " +
+				(form._departmentName || this._deptName(form.departmentId))
+			);
 			this._nav().to(this.byId("adminPage").getId(), "slide");
 		},
 
 		onAdminBack: function () { this._nav().to(this.byId("adminListPage").getId(), "slide"); },
 
 		onAdminDeleteForm: function () {
+			var that = this;
 			var sId = this.getView().getModel("admin").getProperty("/formId");
 			var form = JouleEngine.getForm(sId);
 			var aForms = this._catalog.forms;
 			var idx = -1;
 			aForms.forEach(function (f, i) { if (f.id === sId) { idx = i; } });
 			if (idx < 0) { return; }
+
+			// Get OData ID for CAPM delete
+			var odataId = aForms[idx]._odata_ID;
+
+			// Remove from in-memory catalog
 			aForms.splice(idx, 1);
 			this._refreshFormsMeta();
 			this._toast((form ? form.name : "Form") + " deleted.");
 			this._nav().to(this.byId("adminListPage").getId(), "slide");
+
+			// Delete from CAPM DB if we have an OData ID
+			if (odataId) {
+				ODataService.deleteForm(odataId).then(function (ok) {
+					if (ok) {
+						that._toast("Form deleted from CAPM database.");
+					} else {
+						that._toast("Warning: form removed locally but CAPM delete failed.");
+					}
+				});
+			}
 		},
 
 		_refreshFormsMeta: function () {
@@ -254,24 +332,30 @@ sap.ui.define([
 			(form.headerFields || []).forEach(function (f) {
 				fields.push({ group: "Header", key: f.key, label: f.label, type: f.type || "text",
 					required: !!f.required, optionsCsv: (f.options || []).join(", "),
-					validation: f.validation || "", section: f.section || "" });
+					validation: f.validation || "", section: f.section || "",
+					_odata_ID: f._odata_ID || null });
 			});
 			((form.grid && form.grid.columns) || []).forEach(function (c) {
 				fields.push({ group: "Column", key: c.k, label: c.label || c.k, type: c.type || "text",
 					required: !!c.required, optionsCsv: (c.options || []).join(", "),
-					validation: c.validation || "", section: "" });
+					validation: c.validation || "", section: "",
+					_odata_ID: c._odata_ID || null });
 			});
 			this.getView().getModel("admin").setData({ formId: sFormId, fields: fields });
 		},
 
 		onAdminSave: function () {
+			var that = this;
 			var oData = this.getView().getModel("admin").getData();
 			var form = JouleEngine.getForm(oData.formId);
 			if (!form) { return; }
+
 			function opts(csv) {
 				var a = (csv || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
 				return a.length ? a : undefined;
 			}
+
+			// Update in-memory catalog (existing logic)
 			oData.fields.forEach(function (fld) {
 				var target = fld.group === "Header"
 					? (form.headerFields || []).filter(function (x) { return x.key === fld.key; })[0]
@@ -284,7 +368,17 @@ sap.ui.define([
 				target.options = opts(fld.optionsCsv);
 				if (fld.group === "Header") { target.section = fld.section || target.section; }
 			});
-			this._toast("Field configuration saved for " + form.name + ".");
+
+			this._toast("Saving field configuration…");
+
+			// ── Write back to CAPM OData DB ──
+			ODataService.batchUpdateFields(oData.fields, form).then(function (allOk) {
+				if (allOk) {
+					that._toast("✅ Field configuration saved to CAPM database for " + form.name + ".");
+				} else {
+					that._toast("⚠️ Some fields saved locally but CAPM update had errors. Check console.");
+				}
+			});
 		},
 
 		// ---- voice input ---------------------------------------------------

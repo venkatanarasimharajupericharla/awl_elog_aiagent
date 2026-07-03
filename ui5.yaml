@@ -16,7 +16,10 @@ server:
     - name: fiori-tools-proxy
       afterMiddleware: compression
       configuration:
-        ignoreCertError: false
+        ignoreCertError: true
+        backend:
+          - path: /sales-order
+            url: https://org-build-stefbuildjs-build-salesorder-capm-muj-srv.cfapps.us10-001.hana.ondemand.com
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:
