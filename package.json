@@ -1,0 +1,16 @@
+{
+	"name": "joule-simulation",
+	"version": "1.0.0",
+	"description": "A responsive SAPUI5 (OpenUI5) simulation of SAP Joule that renders UI dynamically from prompts.",
+	"private": true,
+	"scripts": {
+		"start": "fiori run --open index.html",
+		"start:ui5": "ui5 serve --open index.html",
+		"start:python": "python3 -m http.server 8080 --directory webapp",
+		"start:npx": "npx --yes http-server webapp -p 8080 -c-1"
+	},
+	"devDependencies": {
+		"@sap/ux-ui5-tooling": "^1.27.0",
+		"@ui5/cli": "^4.0.57"
+	}
+}

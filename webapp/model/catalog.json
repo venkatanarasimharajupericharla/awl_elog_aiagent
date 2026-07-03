@@ -1,0 +1,350 @@
+{
+	"plants": [
+		{ "id": "bundi", "name": "AWL Agri Business Limited, Bundi", "state": "Raj." },
+		{ "id": "kadi", "name": "AWL Agri Business Limited, Kadi", "state": "Guj." }
+	],
+	"departments": [
+		{ "id": "wfp", "plantId": "bundi", "name": "Wheat Flour Packing" },
+		{ "id": "maint", "plantId": "bundi", "name": "Packing Maintenance" },
+		{ "id": "kpack", "plantId": "kadi", "name": "Edible Oil Packing" }
+	],
+	"users": [
+		{ "id": "u1", "name": "Alex Rivera", "role": "Supervisor", "plantId": "bundi", "departmentId": "wfp" },
+		{ "id": "u2", "name": "R. Sharma", "role": "Line Operator", "plantId": "bundi", "departmentId": "wfp" },
+		{ "id": "u3", "name": "M. Chen", "role": "Maintenance Technician", "plantId": "bundi", "departmentId": "maint" },
+		{ "id": "u4", "name": "Priya Nair", "role": "Plant Manager", "plantId": "bundi", "departmentId": "wfp" },
+		{ "id": "u5", "name": "S. Reddy", "role": "Packing Supervisor", "plantId": "kadi", "departmentId": "kpack" }
+	],
+	"context": { "plantId": "bundi", "departmentId": "wfp", "userId": "u1" },
+
+	"fieldTypes": ["text", "number", "date", "time", "select", "textarea"],
+
+	"forms": [
+		{
+			"id": "shift-communication-log",
+			"name": "Shift Communication Log Book",
+			"documentNo": "AB/P/03",
+			"plantId": "bundi",
+			"departmentId": "wfp",
+			"keywords": ["shift", "communication", "log book", "handover", "ab/p/03"],
+			"entriesTitle": "Production line entries",
+			"headerFields": [
+				{ "label": "Date", "key": "date", "type": "date", "section": "Shift Details", "required": true },
+				{ "label": "Shift", "key": "shift", "type": "select", "section": "Shift Details", "required": true, "options": ["Day", "Night"] },
+				{ "label": "Shift Operator / Supervisor", "key": "operator", "type": "text", "section": "Shift Details", "required": true }
+			],
+			"grid": {
+				"headerRows": [
+					[
+						{ "t": "Production Line", "rs": 2 }, { "t": "Running Line", "rs": 2 }, { "t": "Man Power", "rs": 2 },
+						{ "t": "Production", "cs": 2 }, { "t": "Machine Running Details", "cs": 4 }, { "t": "Remark", "rs": 2 }
+					],
+					[ { "t": "Pack" }, { "t": "Mt." }, { "t": "Start Time" }, { "t": "Stop Time" }, { "t": "Running Hrs" }, { "t": "B/D Time" } ]
+				],
+				"columns": [
+					{ "k": "prodLine", "label": "Production Line", "type": "text", "w": "150px", "required": true },
+					{ "k": "runningLine", "label": "Running Line", "type": "text", "w": "90px" },
+					{ "k": "manPower", "label": "Man Power", "type": "number", "w": "90px" },
+					{ "k": "pack", "label": "Pack", "type": "number" },
+					{ "k": "mt", "label": "Mt.", "type": "number" },
+					{ "k": "startTime", "label": "Start Time", "type": "time" },
+					{ "k": "stopTime", "label": "Stop Time", "type": "time" },
+					{ "k": "runningHrs", "label": "Running Hrs", "type": "number" },
+					{ "k": "bdTime", "label": "B/D Time", "type": "number" },
+					{ "k": "remark", "label": "Remark", "type": "text", "w": "140px" }
+				],
+				"rows": { "mode": "empty" }
+			},
+			"aside": [
+				{ "type": "note", "label": "Shift Communication Note", "height": "90px", "width": "58%" },
+				{ "type": "minitable", "title": "PM Details in Kg.", "width": "40%",
+					"cols": ["", "Wastage", "Consumption"],
+					"rows": [["Primary PM", "", ""], ["Secondary PM", "", ""]] }
+			]
+		},
+
+		{
+			"id": "daily-stock-statement",
+			"name": "Daily Stock Statement",
+			"documentNo": "AB/P/03",
+			"plantId": "bundi",
+			"departmentId": "wfp",
+			"section": "Wheat Flour Packing Section",
+			"titleBox": "DAILY STOCK STATEMENT",
+			"keywords": ["stock", "daily stock", "statement", "packing stock", "dispatch"],
+			"entriesTitle": "Stock lines",
+			"headerFields": [
+				{ "label": "Activity Date", "key": "activityDate", "type": "date", "section": "Report Dates", "required": true },
+				{ "label": "Reporting Date", "key": "reportingDate", "type": "date", "section": "Report Dates", "required": true }
+			],
+			"grid": {
+				"headerRows": [
+					[
+						{ "t": "Description" }, { "t": "Opening Stock" }, { "t": "Today Packing" }, { "t": "Today Dispatch" },
+						{ "t": "Closing Stock" }, { "t": "Batch No." }, { "t": "Pending Production Entry" }, { "t": "Remark" }
+					]
+				],
+				"columns": [
+					{ "k": "desc", "label": "Description", "type": "text", "w": "200px", "required": true },
+					{ "k": "opening", "label": "Opening Stock", "type": "number" },
+					{ "k": "todayPack", "label": "Today Packing", "type": "number" },
+					{ "k": "todayDisp", "label": "Today Dispatch", "type": "number" },
+					{ "k": "closing", "label": "Closing Stock", "type": "number" },
+					{ "k": "batch", "label": "Batch No.", "type": "text" },
+					{ "k": "pending", "label": "Pending Production Entry", "type": "text" },
+					{ "k": "remark", "label": "Remark", "type": "text", "w": "130px" }
+				],
+				"rows": { "mode": "empty" }
+			},
+			"footerFields": [
+				{ "label": "Cumulative Packing", "key": "cumPack", "type": "number" },
+				{ "label": "Cumulative Dispatch", "key": "cumDisp", "type": "number" }
+			],
+			"signature": "Sign. of Supervisor"
+		},
+
+		{
+			"id": "metal-detector-check-sheet",
+			"name": "Metal Detector Check Sheet",
+			"documentNo": "AB/P/02",
+			"plantId": "bundi",
+			"departmentId": "wfp",
+			"frequency": "Every 3 Hours",
+			"keywords": ["metal detector", "check sheet", "probe", "ab/p/02", "checkweigher"],
+			"entriesTitle": "Probe checks",
+			"headerFields": [
+				{ "label": "Location", "key": "location", "type": "text", "value": "Wheat Flour Packing", "section": "Machine", "required": true },
+				{ "label": "Production Line", "key": "line", "type": "text", "section": "Machine", "required": true },
+				{ "label": "Metal Detector / Checkweigher No.", "key": "mdNo", "type": "text", "section": "Machine" },
+				{ "label": "Product Name", "key": "product", "type": "text", "section": "Product", "required": true },
+				{ "label": "Batch No.", "key": "batch", "type": "text", "section": "Product", "required": true }
+			],
+			"grid": {
+				"headerRows": [
+					[
+						{ "t": "Date" }, { "t": "Time" }, { "t": "MD ON/OFF" },
+						{ "t": "Probe-I (Ss)" }, { "t": "Probe-II (Fe)" }, { "t": "Probe-III (Al)" },
+						{ "t": "Corrective Action" }, { "t": "Checked by" }
+					]
+				],
+				"columns": [
+					{ "k": "date", "label": "Date", "type": "date" },
+					{ "k": "time", "label": "Time", "type": "time", "required": true },
+					{ "k": "mdOnOff", "label": "MD ON/OFF", "type": "select", "options": ["ON", "OFF"] },
+					{ "k": "probe1", "label": "Probe-I (Ss- mm)", "type": "number" },
+					{ "k": "probe2", "label": "Probe-II (Fe- mm)", "type": "number" },
+					{ "k": "probe3", "label": "Probe-III (Al- mm)", "type": "number" },
+					{ "k": "corrective", "label": "Corrective Action", "type": "text", "w": "150px" },
+					{ "k": "checkedBy", "label": "Checked by", "type": "text" }
+				],
+				"rows": { "mode": "empty" }
+			}
+		},
+
+		{
+			"id": "magnet-cleaning-checklist",
+			"name": "Magnet Cleaning Check List",
+			"documentNo": "AB/P/11",
+			"plantId": "bundi",
+			"departmentId": "wfp",
+			"frequency": "Every Shift Startup",
+			"keywords": ["magnet", "cleaning", "check list", "checklist", "foreign particle", "ab/p/11"],
+			"entriesTitle": "Magnet cleaning records",
+			"headerFields": [
+				{ "label": "Date", "key": "date", "type": "date", "section": "Shift", "required": true },
+				{ "label": "Shift", "key": "shift", "type": "select", "section": "Shift", "required": true, "options": ["Day", "Night"] }
+			],
+			"grid": {
+				"headerRows": [
+					[
+						{ "t": "Description Magnet" }, { "t": "Location" }, { "t": "Time" },
+						{ "t": "Foreign Particle (gm)" }, { "t": "Cleaned By" }, { "t": "Remark" }
+					]
+				],
+				"columns": [
+					{ "k": "desc", "label": "Description Magnet", "type": "select", "w": "150px", "required": true,
+						"options": ["5/10 KG LINE-01", "5/10 KG LINE-02", "30/50 KG LINE-03", "Overtail LINE-04"] },
+					{ "k": "location", "label": "Location", "type": "text", "w": "120px", "value": "Atta Packing" },
+					{ "k": "time", "label": "Time", "type": "time" },
+					{ "k": "fp", "label": "Foreign Particle (gm)", "type": "number", "w": "140px" },
+					{ "k": "cleanedBy", "label": "Cleaned By", "type": "text" },
+					{ "k": "remark", "label": "Remark", "type": "text", "w": "120px" }
+				],
+				"rows": { "mode": "empty" }
+			}
+		},
+
+		{
+			"id": "net-weight-check-sheet",
+			"name": "Net Weight Check Sheet",
+			"documentNo": "AB/P/07",
+			"plantId": "bundi",
+			"departmentId": "wfp",
+			"keywords": ["net weight", "weight check", "check weigher", "target weight", "ab/p/07", "hourly weight"],
+			"entriesTitle": "Weight readings",
+			"headerFields": [
+				{ "label": "SKU", "key": "sku", "type": "text", "section": "Product", "required": true },
+				{ "label": "Batch No.", "key": "batch", "type": "text", "section": "Product", "required": true },
+				{ "label": "MRP (Rs.)", "key": "mrp", "type": "number", "section": "Product" },
+				{ "label": "Target Weight", "key": "target", "type": "number", "section": "Weight Limits", "required": true },
+				{ "label": "Upper Limit", "key": "upper", "type": "number", "section": "Weight Limits", "required": true },
+				{ "label": "Lower Limit", "key": "lower", "type": "number", "section": "Weight Limits", "required": true },
+				{ "label": "Name of the Operator", "key": "operator", "type": "text", "section": "Operator", "required": true }
+			],
+			"grid": {
+				"headerRows": [
+					[ { "t": "Time" }, { "t": "Reading 1" }, { "t": "Reading 2" }, { "t": "Reading 3" }, { "t": "Average" }, { "t": "Status" } ]
+				],
+				"columns": [
+					{ "k": "time", "label": "Time", "type": "time", "required": true },
+					{ "k": "r1", "label": "Reading 1", "type": "number" },
+					{ "k": "r2", "label": "Reading 2", "type": "number" },
+					{ "k": "r3", "label": "Reading 3", "type": "number" },
+					{ "k": "avg", "label": "Average", "type": "number" },
+					{ "k": "status", "label": "Status", "type": "select", "options": ["OK", "High", "Low"] }
+				],
+				"rows": { "mode": "empty" }
+			},
+			"aside": [
+				{ "type": "minitable", "title": "Downtime", "width": "60%",
+					"cols": ["Total Time (Min)", "Reason"], "rows": [["", ""]] }
+			]
+		},
+
+		{
+			"id": "pm-checklist-metal-detector",
+			"name": "Preventive Maintenance — Metal Detector",
+			"documentNo": "AB/P/08",
+			"plantId": "bundi",
+			"departmentId": "maint",
+			"section": "Flour Packing — Metal Detector Machine",
+			"subtitle": "Daily & Weekly Preventive Maintenance & Cleaning Schedule",
+			"keywords": ["preventive", "maintenance", "pm checklist", "metal detector maintenance", "ab/p/08", "cleaning schedule"],
+			"entriesTitle": "Maintenance activities",
+			"headerFields": [
+				{ "label": "Month", "key": "month", "type": "text", "value": "May-2026", "section": "Schedule" },
+				{ "label": "Responsibility", "key": "resp", "type": "text", "value": "Operator", "section": "Schedule" }
+			],
+			"grid": {
+				"headerRows": [
+					[ { "t": "Equipment / Area" }, { "t": "Assigned" }, { "t": "Frequency" }, { "t": "Date Done" }, { "t": "Done By" }, { "t": "Remark" } ]
+				],
+				"columns": [
+					{ "k": "equipment", "label": "Equipment / Area", "type": "text", "w": "200px", "required": true },
+					{ "k": "assigned", "label": "Assigned", "type": "text", "value": "Operator" },
+					{ "k": "freq", "label": "Frequency", "type": "select", "options": ["Daily", "Weekly"] },
+					{ "k": "dateDone", "label": "Date Done", "type": "date" },
+					{ "k": "doneBy", "label": "Done By", "type": "text" },
+					{ "k": "remark", "label": "Remark", "type": "text", "w": "130px" }
+				],
+				"rows": {
+					"mode": "seed",
+					"seed": [
+						{ "equipment": "Metal Detector Line-1" }, { "equipment": "Metal Detector Line-2" },
+						{ "equipment": "Metal Detector Line-3" }, { "equipment": "Metal Detector Line-4" }
+					]
+				}
+			},
+			"footerFields": [
+				{ "label": "Verified By (Dept. Head)", "key": "verifiedBy", "type": "text" }
+			],
+			"signature": "Sign. Supervisor"
+		},
+
+		{
+			"id": "pm-checklist-conveyor",
+			"name": "Preventive Maintenance — Conveyor",
+			"documentNo": "AB/P/08",
+			"plantId": "bundi",
+			"departmentId": "maint",
+			"section": "Flour Packing — Conveyor",
+			"subtitle": "Daily & Weekly Preventive Maintenance & Cleaning Schedule",
+			"keywords": ["conveyor", "preventive maintenance", "conveyor maintenance", "pm conveyor"],
+			"entriesTitle": "Maintenance activities",
+			"headerFields": [
+				{ "label": "Month", "key": "month", "type": "text", "value": "May-2026", "section": "Schedule" },
+				{ "label": "Responsibility", "key": "resp", "type": "text", "value": "Operator", "section": "Schedule" }
+			],
+			"grid": {
+				"headerRows": [
+					[ { "t": "Equipment / Area" }, { "t": "Assigned" }, { "t": "Frequency" }, { "t": "Date Done" }, { "t": "Done By" }, { "t": "Remark" } ]
+				],
+				"columns": [
+					{ "k": "equipment", "label": "Equipment / Area", "type": "text", "w": "200px", "required": true },
+					{ "k": "assigned", "label": "Assigned", "type": "text", "value": "Operator" },
+					{ "k": "freq", "label": "Frequency", "type": "select", "options": ["Daily", "Weekly"] },
+					{ "k": "dateDone", "label": "Date Done", "type": "date" },
+					{ "k": "doneBy", "label": "Done By", "type": "text" },
+					{ "k": "remark", "label": "Remark", "type": "text", "w": "130px" }
+				],
+				"rows": {
+					"mode": "seed",
+					"seed": [
+						{ "equipment": "Roller Conveyor Line-1" }, { "equipment": "10 KG Sandwich Conveyor-2" },
+						{ "equipment": "05 KG Sandwich Conveyor-3" }, { "equipment": "Roller Conveyor Line-4" }
+					]
+				}
+			},
+			"footerFields": [
+				{ "label": "Verified By (Dept. Head)", "key": "verifiedBy", "type": "text" }
+			],
+			"signature": "Sign. Supervisor"
+		},
+
+		{
+			"id": "oil-net-weight",
+			"name": "Oil Packing Net Weight Check Sheet",
+			"documentNo": "AB/K/07",
+			"plantId": "kadi",
+			"departmentId": "kpack",
+			"keywords": ["oil", "net weight", "packing", "ab/k/07"],
+			"entriesTitle": "Weight readings",
+			"headerFields": [
+				{ "label": "SKU", "key": "sku", "type": "text", "section": "Product", "required": true },
+				{ "label": "Batch No.", "key": "batch", "type": "text", "section": "Product", "required": true },
+				{ "label": "Target Weight", "key": "target", "type": "number", "section": "Weight Limits", "required": true },
+				{ "label": "Operator", "key": "operator", "type": "text", "section": "Operator", "required": true }
+			],
+			"grid": {
+				"headerRows": [
+					[ { "t": "Time" }, { "t": "Reading (g)" }, { "t": "Status" } ]
+				],
+				"columns": [
+					{ "k": "time", "label": "Time", "type": "time", "required": true },
+					{ "k": "reading", "label": "Reading (g)", "type": "number", "required": true },
+					{ "k": "status", "label": "Status", "type": "select", "options": ["OK", "High", "Low"] }
+				],
+				"rows": { "mode": "empty" }
+			}
+		},
+
+		{
+			"id": "oil-line-log",
+			"name": "Oil Packing Line Log",
+			"documentNo": "AB/K/01",
+			"plantId": "kadi",
+			"departmentId": "kpack",
+			"keywords": ["oil", "line log", "packing line", "ab/k/01"],
+			"entriesTitle": "Line entries",
+			"headerFields": [
+				{ "label": "Date", "key": "date", "type": "date", "section": "Shift", "required": true },
+				{ "label": "Shift", "key": "shift", "type": "select", "section": "Shift", "required": true, "options": ["Day", "Night"] },
+				{ "label": "Supervisor", "key": "supervisor", "type": "text", "section": "Shift", "required": true }
+			],
+			"grid": {
+				"headerRows": [
+					[ { "t": "Line" }, { "t": "Product" }, { "t": "Qty Packed" }, { "t": "Start Time" }, { "t": "Stop Time" }, { "t": "Remark" } ]
+				],
+				"columns": [
+					{ "k": "line", "label": "Line", "type": "text", "required": true },
+					{ "k": "product", "label": "Product", "type": "text" },
+					{ "k": "qty", "label": "Qty Packed", "type": "number" },
+					{ "k": "startTime", "label": "Start Time", "type": "time" },
+					{ "k": "stopTime", "label": "Stop Time", "type": "time" },
+					{ "k": "remark", "label": "Remark", "type": "text", "w": "130px" }
+				],
+				"rows": { "mode": "empty" }
+			}
+		}
+	]
+}

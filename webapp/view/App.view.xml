@@ -1,0 +1,179 @@
+<mvc:View
+	controllerName="joule.controller.App"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	displayBlock="true"
+	height="100%">
+
+	<App id="rootApp">
+
+		<!-- ============ AGENT (home) ============ -->
+		<Page id="agentPage" class="jouleAgentPage" showHeader="true" backgroundDesign="Solid">
+			<customHeader>
+				<Bar class="jouleHeader jouleAgentHeader">
+					<contentLeft>
+						<Image src="img/awl-logo-white.svg" class="jouleHeaderLogo" densityAware="false" decorative="true"/>
+						<VBox class="jouleHeaderText" renderType="Bare">
+							<Title text="{i18n>jouleTitle}" level="H3" class="jouleHeaderTitle" wrapping="false"/>
+							<Text text="{i18n>jouleSubtitle}" class="jouleHeaderSub" wrapping="false"/>
+						</VBox>
+					</contentLeft>
+					<contentRight>
+						<core:Icon src="sap-icon://employee" class="jouleUserIcon"/>
+						<Select id="userSelect" class="jouleUserSelect" selectedKey="{meta>/currentUserId}"
+							change="onUserChange" items="{meta>/users}" tooltip="Switch login user">
+							<core:Item key="{meta>id}" text="{meta>label}"/>
+						</Select>
+						<Button icon="sap-icon://settings" type="Transparent" tooltip="Admin — Field Configuration"
+							press="onOpenAdmin" class="jouleHeaderBtn"/>
+						<Button icon="sap-icon://restart" type="Transparent" tooltip="New conversation"
+							press="onResetChat" class="jouleHeaderBtn"/>
+					</contentRight>
+				</Bar>
+			</customHeader>
+
+			<ScrollContainer id="jouleScroll" class="jouleAgentScroll" height="100%" width="100%" vertical="true" focusable="true">
+				<VBox id="jouleConversation" class="jouleConversation jouleAgentConversation"/>
+			</ScrollContainer>
+
+			<footer>
+				<Toolbar class="jouleFooter jouleAgentFooter">
+					<Input id="jouleInput" class="jouleInput" width="100%" placeholder="{i18n>inputPlaceholder}" submit="onSend" value="{/draft}">
+						<layoutData><ToolbarLayoutData shrinkable="true" maxWidth="100%"/></layoutData>
+					</Input>
+					<Button id="jouleMic" class="jouleMicBtn" icon="sap-icon://microphone" type="Transparent" tooltip="Speak" press="onMic"/>
+					<Button id="jouleSend" class="jouleSendBtn" icon="sap-icon://paper-plane" type="Emphasized" tooltip="{i18n>sendTooltip}" press="onSend"/>
+				</Toolbar>
+			</footer>
+		</Page>
+
+		<!-- ============ FORM screen ============ -->
+		<Page id="formPage" class="jouleFormPage" showHeader="true">
+			<customHeader>
+				<Bar class="jouleHeader">
+					<contentLeft>
+						<Button icon="sap-icon://home" type="Transparent" text="Home" press="onNavHome" class="jouleHeaderBtn jouleHomeBtn"/>
+					</contentLeft>
+					<contentMiddle>
+						<Title id="formTitleText" text="" level="H3" class="jouleHeaderTitle"/>
+					</contentMiddle>
+					<contentRight>
+						<Text id="formDocNoText" text="" class="jouleHeaderSub"/>
+					</contentRight>
+				</Bar>
+			</customHeader>
+
+			<ScrollContainer id="formScroll" class="jouleFormPageScroll" height="100%" width="100%" vertical="true">
+				<VBox id="formContent" class="jouleFormPageBody"/>
+			</ScrollContainer>
+		</Page>
+
+		<!-- ============ ENTRY details / edit ============ -->
+		<Page id="entryPage" class="jouleFormPage" showHeader="true">
+			<customHeader>
+				<Bar class="jouleHeader">
+					<contentLeft>
+						<Button icon="sap-icon://nav-back" type="Transparent" text="Back" press="onEntryBack" class="jouleHeaderBtn jouleHomeBtn"/>
+					</contentLeft>
+					<contentMiddle>
+						<Title id="entryTitleText" text="Entry details" level="H3" class="jouleHeaderTitle"/>
+					</contentMiddle>
+					<contentRight>
+						<Button icon="sap-icon://delete" type="Transparent" text="Delete" press="onEntryDelete" class="jouleHeaderBtn jouleDeleteBtn"/>
+					</contentRight>
+				</Bar>
+			</customHeader>
+			<ScrollContainer height="100%" width="100%" vertical="true" class="jouleFormPageScroll">
+				<VBox id="entryContent" class="jouleFormPageBody"/>
+			</ScrollContainer>
+		</Page>
+
+		<!-- ============ ADMIN app — forms list (master) ============ -->
+		<Page id="adminListPage" class="jouleAdminPage" showHeader="true">
+			<customHeader>
+				<Bar class="jouleHeader jouleAdminHeader">
+					<contentLeft>
+						<core:Icon src="sap-icon://settings" class="jouleAdminIcon"/>
+						<VBox class="jouleHeaderText" renderType="Bare">
+							<Title text="AWL ELog Admin" level="H3" class="jouleHeaderTitle" wrapping="false"/>
+							<Text text="Form Configuration" class="jouleHeaderSub" wrapping="false"/>
+						</VBox>
+					</contentLeft>
+					<contentRight>
+						<Button icon="sap-icon://home" type="Transparent" text="Open Agent" press="onNavHome" class="jouleHeaderBtn jouleHomeBtn"/>
+					</contentRight>
+				</Bar>
+			</customHeader>
+
+			<List class="jouleAdminList" headerText="All forms — tap to configure" items="{meta>/forms}">
+				<ObjectListItem type="Navigation" title="{meta>name}" number="{meta>documentNo}" press="onAdminFormPress">
+					<attributes>
+						<ObjectAttribute text="{meta>plantName}"/>
+						<ObjectAttribute text="{meta>deptName}"/>
+						<ObjectAttribute text="{meta>fieldCount} fields"/>
+					</attributes>
+				</ObjectListItem>
+			</List>
+		</Page>
+
+		<!-- ============ ADMIN app — form detail (config / delete) ============ -->
+		<Page id="adminPage" class="jouleAdminPage" showHeader="true">
+			<customHeader>
+				<Bar class="jouleHeader">
+					<contentLeft>
+						<Button icon="sap-icon://nav-back" type="Transparent" text="Forms" press="onAdminBack" class="jouleHeaderBtn jouleHomeBtn"/>
+					</contentLeft>
+					<contentMiddle>
+						<Title id="adminDetailTitle" text="Field Configuration" level="H3" class="jouleHeaderTitle"/>
+					</contentMiddle>
+					<contentRight>
+						<Button icon="sap-icon://delete" type="Transparent" text="Delete form" press="onAdminDeleteForm" class="jouleHeaderBtn jouleDeleteBtn"/>
+					</contentRight>
+				</Bar>
+			</customHeader>
+
+			<VBox class="jouleAdminBody">
+				<Toolbar class="jouleAdminBar">
+					<Label id="adminDetailInfo" text="" class="jouleAdminLbl"/>
+					<ToolbarSpacer/>
+					<Button text="Save configuration" type="Emphasized" icon="sap-icon://save" press="onAdminSave"/>
+				</Toolbar>
+
+				<Table id="adminFieldsTable" class="jouleAdminTable" items="{admin>/fields}" growing="false">
+					<columns>
+						<Column><header><Text text="Field Group"/></header></Column>
+						<Column><header><Text text="Field Name"/></header></Column>
+						<Column><header><Text text="Type"/></header></Column>
+						<Column hAlign="Center"><header><Text text="Required"/></header></Column>
+						<Column><header><Text text="Options (csv)"/></header></Column>
+						<Column><header><Text text="Validation (regex)"/></header></Column>
+						<Column><header><Text text="Section"/></header></Column>
+					</columns>
+					<items>
+						<ColumnListItem>
+							<cells>
+								<ObjectStatus text="{admin>group}" state="{= ${admin>group} === 'Header' ? 'Information' : 'Success'}" inverted="true"/>
+								<Input value="{admin>label}"/>
+								<Select selectedKey="{admin>type}" forceSelection="false">
+									<core:Item key="text" text="Text"/>
+									<core:Item key="number" text="Number"/>
+									<core:Item key="date" text="Date"/>
+									<core:Item key="time" text="Time"/>
+									<core:Item key="select" text="Dropdown"/>
+									<core:Item key="textarea" text="Text area"/>
+								</Select>
+								<CheckBox selected="{admin>required}"/>
+								<Input value="{admin>optionsCsv}" placeholder="A, B, C"/>
+								<Input value="{admin>validation}" placeholder="^[0-9.]*$"/>
+								<Input value="{admin>section}"/>
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</VBox>
+		</Page>
+
+	</App>
+
+</mvc:View>
