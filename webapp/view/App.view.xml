@@ -142,13 +142,13 @@
 
 				<Table id="adminFieldsTable" class="jouleAdminTable" items="{admin>/fields}" growing="false">
 					<columns>
-						<Column><header><Text text="Field Group"/></header></Column>
-						<Column><header><Text text="Field Name"/></header></Column>
-						<Column><header><Text text="Type"/></header></Column>
-						<Column hAlign="Center"><header><Text text="Required"/></header></Column>
-						<Column><header><Text text="Options (csv)"/></header></Column>
-						<Column><header><Text text="Validation (regex)"/></header></Column>
-						<Column><header><Text text="Section"/></header></Column>
+						<Column width="6rem" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline"><header><Text text="Field Group"/></header></Column>
+						<Column width="11rem"><header><Text text="Field Name"/></header></Column>
+						<Column width="8rem"><header><Text text="Type"/></header></Column>
+						<Column width="6rem" hAlign="Center" minScreenWidth="600px" demandPopin="true" popinDisplay="Inline"><header><Text text="Required"/></header></Column>
+						<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Block"><header><Text text="Options (csv)"/></header></Column>
+						<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Block"><header><Text text="Validation (regex)"/></header></Column>
+						<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Block"><header><Text text="Section"/></header></Column>
 					</columns>
 					<items>
 						<ColumnListItem>

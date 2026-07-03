@@ -2,8 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>AWL ELog AI Agent</title>
+    <meta name="description" content="AWL Agri Business - Electronic Log AI Agent for dynamic form rendering and data entry.">
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <!-- Theme color for browser chrome -->
+    <meta name="theme-color" content="#023A31">
+
+    <!-- iOS PWA support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AWL ELog">
+    <link rel="apple-touch-icon" href="img/icon-192.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="img/icon-192.jpg">
 
     <!-- OpenUI5 bootstrap from the public CDN (pinned version, Horizon theme) -->
     <script
@@ -17,6 +33,120 @@
         data-sap-ui-frameOptions="trusted"
         data-sap-ui-oninit="module:sap/ui/core/ComponentSupport">
     </script>
+
+    <!-- PWA Install Modal Styles -->
+    <style>
+        .pwa-install-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+        }
+        /* Only enable showing the modal on screens <= 600px */
+        @media (max-width: 600px) {
+            .pwa-install-modal-overlay.show { display: flex; }
+        }
+        .pwa-install-modal {
+            background: #fff;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 360px;
+            position: relative;
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: modalPopIn 0.3s ease;
+        }
+        @keyframes modalPopIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .pwa-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 50%;
+            font-size: 14px;
+            color: #5c626a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pwa-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-right: 24px;
+        }
+        .pwa-modal-header img {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .pwa-modal-header h2 {
+            margin: 0;
+            font-size: 19px;
+            color: #111827;
+            line-height: 1.25;
+            font-weight: 800;
+        }
+        .pwa-modal-desc {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.5;
+            margin: 0 0 24px 0;
+        }
+        .pwa-step {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .pwa-step-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #f59e0b;
+            background: #fef3c7;
+        }
+        .pwa-step-icon svg { width: 22px; height: 22px; }
+        .pwa-step-text {
+            font-size: 15px;
+            color: #4b5563;
+        }
+        .pwa-step-text strong { color: #111827; font-weight: 700; }
+        .pwa-got-it-btn {
+            width: 100%;
+            background: #f59e0b;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+            transition: opacity 0.2s;
+        }
+        .pwa-got-it-btn:active { opacity: 0.8; }
+    </style>
 </head>
 <body class="sapUiBody" style="height:100%;margin:0">
     <div
@@ -27,5 +157,83 @@
         data-height="100%"
         style="height:100%">
     </div>
+
+    <!-- PWA Install Modal -->
+    <div id="pwaInstallModal" class="pwa-install-modal-overlay">
+        <div class="pwa-install-modal">
+            <button id="pwaDismissModalBtn" class="pwa-modal-close">✕</button>
+            <div class="pwa-modal-header">
+                <img src="img/icon-192.jpg" alt="AWL ELog">
+                <h2>Install AWL ELog App on your HomeScreen</h2>
+            </div>
+            <p class="pwa-modal-desc">This site has app functionality. Add it to your Home Screen for a better experience and easy access.</p>
+            
+            <div class="pwa-step">
+                <div class="pwa-step-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                </div>
+                <div class="pwa-step-text"><strong>1.</strong> Open in <strong>Safari</strong> or <strong>Chrome</strong> browser</div>
+            </div>
+            
+            <div class="pwa-step">
+                <div class="pwa-step-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                </div>
+                <div class="pwa-step-text"><strong>2.</strong> Tap <strong>Share</strong> or <strong>⋮ Menu</strong> in navigation bar</div>
+            </div>
+            
+            <div class="pwa-step">
+                <div class="pwa-step-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </div>
+                <div class="pwa-step-text"><strong>3.</strong> Select <strong>Add to Home Screen</strong></div>
+            </div>
+            
+            <button id="pwaGotItBtn" class="pwa-got-it-btn">Got it!</button>
+        </div>
+    </div>
+
+    <!-- Service Worker Registration & Modal Logic -->
+    <script>
+        // Register Service Worker
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+                navigator.serviceWorker.register("sw.js")
+                    .then(function (reg) {
+                        console.log("[PWA] Service Worker registered");
+                    })
+                    .catch(function (err) {
+                        console.warn("[PWA] Service Worker registration failed:", err);
+                    });
+            });
+        }
+
+        // Detect mobile device
+        var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        var isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+
+        // Show modal on mobile if not standalone and not dismissed
+        window.addEventListener("load", function () {
+            if (isMobile && !isStandalone && !sessionStorage.getItem("pwa-dismissed")) {
+                setTimeout(function() {
+                    document.getElementById("pwaInstallModal").classList.add("show");
+                }, 1000); // 1s delay
+            }
+        });
+
+        // Dismiss handlers
+        function dismissModal() {
+            document.getElementById("pwaInstallModal").classList.remove("show");
+            sessionStorage.setItem("pwa-dismissed", "1");
+        }
+
+        document.getElementById("pwaDismissModalBtn").addEventListener("click", dismissModal);
+        document.getElementById("pwaGotItBtn").addEventListener("click", dismissModal);
+
+        // Hide if successfully installed while open
+        window.addEventListener("appinstalled", function () {
+            dismissModal();
+        });
+    </script>
 </body>
 </html>

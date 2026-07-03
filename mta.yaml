@@ -1,0 +1,22 @@
+_schema-version: "3.1"
+ID: awl-elog-aiagent
+description: AWL ELog AI Agent - SAPUI5 Application
+version: 1.0.0
+
+modules:
+  - name: awl-elog-aiagent-app
+    type: html5
+    path: webapp
+    build-parameters:
+      builder: custom
+      commands:
+        - npx --yes @ui5/cli build --dest ../dist
+      supported-platforms: []
+      build-result: ../dist
+
+resources:
+  - name: awl-elog-aiagent-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite

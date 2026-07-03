@@ -263,6 +263,22 @@ sap.ui.define([
 					if (err) { oStrip.setText(err).setVisible(true); toast(err); return; }
 
 					var payload = { header: model.getProperty("/header"), entries: entries, aside: model.getProperty("/aside"), footer: model.getProperty("/footer") };
+					
+					// Save the data offline to localStorage
+					try {
+						var saved = JSON.parse(localStorage.getItem("awl_elog_submissions") || "[]");
+						saved.push({
+							id: Date.now().toString(),
+							timestamp: new Date().toISOString(),
+							name: def.name,
+							docNo: def.documentNo,
+							payload: payload
+						});
+						localStorage.setItem("awl_elog_submissions", JSON.stringify(saved));
+					} catch (e) {
+						if (window.console) console.error("Could not save offline data", e);
+					}
+
 					if (window.console) { window.console.log("[ELog submit]", def.documentNo, def.name, payload); }
 					oSubmit.setEnabled(false).setText("Submitted ✓").setIcon("sap-icon://accept");
 					if (api && api.submitted) { api.submitted({ name: def.name, docNo: def.documentNo, count: entries.length }); }
